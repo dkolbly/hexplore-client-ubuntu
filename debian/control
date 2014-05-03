@@ -1,0 +1,16 @@
+Source: hexplore-client
+Section: games
+Priority: extra
+Maintainer: Donovan Kolbly <donovan@rscheme.org>
+Build-Depends: debhelper (>= 9.0.0), libsdl2-dev, libglm-dev, libpng-dev, libprotobuf-dev, protobuf-compiler, libjsoncpp-dev, xcftools
+Standards-Version: 3.9.4
+Homepage: http://wiki.hexplore.us/
+#Vcs-Git: git://git.debian.org/collab-maint/hexplore-client.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/hexplore-client.git;a=summary
+
+Package: hexplore-client
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Client for Hexplore game
+ This is the native client for the Hexplore game.  It needs
+ to talk to a server in order to function.

@@ -1,0 +1,101 @@
+hexplore-client Packaging for Debian
+====================================
+
+The upstream source is currently unified (client/server) and does not
+contain a Makefile.  We add that here.
+
+Furthermore, the stars must be in perfect alignment in order for
+everything to work.
+
+The ~/.devscripts should contain a mention of the gpg key used to
+sign, such as:
+
+    DEBSIGN_KEYID=5DA3C470B1CB79CA
+
+Note that setting that in the environment has no effect
+
+This packaging is set up to use git-buildpackage.  Specific workflow
+use cases are articulated here.
+
+Packaging-Layer Modifications To Upstream Sources
+-------------------------------------------------
+
+This system uses quilt, which is like mercurial mq (at least relative
+to the order I learned things in :-) mq is actually based on quilt).
+But it isn't very smart about what the "baseline" is, so you have to
+create a patch and add things to it *before* you start modifying anything
+or else it gets confused about what the initial conditions were.
+
+Pulling in new Upstream Sources
+-------------------------------
+First, we have to *get* the upstream sources.  See
+http://wiki.hexplore.us/build/ClientUbuntuBuild for information
+about that process.
+
+Then, we can slurp them in:
+
+git-import-orig /tmp/hexplore-client-0.3.2_2ac12f516c62369c6df28818fb65dc156804c738.tar.gz -u 0.3.2
+
+dch -v $(debian/bumpversion -u 0.3.2)  ; new upstream rev
+
+change 'UNRELEASED' to 'saucy'
+
+Creating a new Local File
+-------------------------
+Precondition: MyLocalFile does not exist
+  1. dquilt new createlocalfile.patch   ; create and name the patch
+  1. dquilt add MyLocalFile             ; tell it about MyLocalFile
+  2. create MyLocalFile                 ; actually provide content
+  3. dquilt refresh                     ; tell it to check what's changed
+  4. dquilt header -e                   ; fill in the header
+
+Making modifications to a Local File
+------------------------------------
+Note that the working tree is usually in the unapplied state
+(which makes it easier to merge upstream content).
+
+  1. dquilt apply -a                    ; apply all patches
+  2. dquilt new mymodifyfile.patch      ; create and name the patch
+  3. dquilt add MyFileToModify          ; tell it about the file being modified
+  4. modify MyFileToModify
+  5. dquilt refresh                     ; tell it to slurp up the changes
+  6. dquilt header -e                   ; fill in the header
+
+Finalizing Changes for a Release Build
+======================================
+Here we need to check in everything within this git repo and cut
+and tag a new build.
+
+  1. dch -v $(debian/bumpversion)                ; same upstream rev
+                --or--
+     dch -v $(debian/bumpversion -u ${VERSION})  ; new upstream rev
+
+  2. git add -u 
+
+  3. git commit -m"..."
+
+  4. git-buildpackage --git-tag
+
+  5. git push
+
+  6. git push --tags
+
+My dquilt is aliased like so (this borrows heavily from
+http://www.debian.org/doc/manuals/maint-guide/modify.en.html)
+
+alias quilt="quilt --quiltrc=${HOME}/.quiltrc-dpkg"
+
+My ~/.quiltrc-dpkg
+------------------
+d=. ; while [ ! -d $d/debian -a `readlink -e $d` != / ]; do d=$d/..; done
+if [ -d $d/debian ] && [ -z $QUILT_PATCHES ]; then
+    # if in Debian packaging tree with unset $QUILT_PATCHES
+    QUILT_PATCHES="debian/patches"
+    QUILT_PATCH_OPTS="--reject-format=unified"
+    QUILT_DIFF_ARGS="-p ab --no-timestamps --no-index --color=auto"
+    QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
+    if ! [ -d $d/debian/patches ]; then mkdir $d/debian/patches; fi
+fi
+
+
+ -- Donovan Kolbly <donovan@rscheme.org>  Sat, 03 May 2014 10:29:55 -0500

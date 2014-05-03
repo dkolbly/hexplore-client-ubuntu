@@ -1,0 +1,44 @@
+Adding top-level Makefile to lay out files for
+debian packaging
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,39 @@
++PROTOS=server/wire/hello.proto \
++	server/wire/terrain.proto \
++	server/wire/entity.proto \
++	server/wire/model.proto \
++	server/wire/major.proto
++
++PROTO_OUT=server/src/.out
++PROTO_SOURCES=$(patsubst server/wire/%.proto,$(PROTO_OUT)/wire/%.pb.cc,$(PROTOS))
++PROTO_H_FILES=$(patsubst $(PROTO_OUT)/wire/%.cc,$(PROTO_OUT)/wire/%.h,$(PROTO_SOURCES))
++
++all:: $(PROTO_SOURCES) $(PROTO_H_FILES) hexcom/libhexcom.a client/native/hc
++
++
++$(PROTO_OUT)/wire/%.pb.cc $(PROTO_OUT)/wire/%.pb.h: server/wire/%.proto
++	@mkdir -p $(PROTO_OUT)
++	protoc -Iserver/ --cpp_out=$(PROTO_OUT) $<
++
++hexcom/libhexcom.a:
++	make -C hexcom
++
++client/native/hc:
++	env
++	make -C client/native
++
++DESTDIR=
++BIN=$(DESTDIR)/usr/games
++VAR=$(DESTDIR)/var/games
++SHARE=$(DESTDIR)/usr/share/games/hexplore
++
++install::
++	@mkdir -p $(BIN) $(SHARE)
++	make -C client/native BIN=`readlink -f $(BIN)` ASSETDIR=`readlink -f $(SHARE)` \
++		install
++
++clean::
++	make -C hexcom clean
++	rm -rf server/src/.out
++	rm -rf client/native/.out client/native/hc
++	rm -rf .out

@@ -1,0 +1,5 @@
+hexplore-client (14.05.1-1) unstable; urgency=low
+
+  * Initial re-release after 0.3.x series
+
+ -- Donovan Kolbly <donovan@rscheme.org>  Sat, 03 May 2014 10:29:55 -0500

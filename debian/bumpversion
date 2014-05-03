@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+
+import re
+import subprocess
+import sys
+
+if "-u" in sys.argv:
+    # it is build #1 of the new upstream version
+    print "%s-1" % sys.argv[1+sys.argv.index("-u")]
+else:
+    p = subprocess.Popen(["dpkg-parsechangelog", "-c1"],
+                         stdout=subprocess.PIPE)
+    m = re.search(r"Version:\s+([^\s]+)$", p.stdout.read(), re.MULTILINE)
+    parts = m.group(1).split('-')
+    print '-'.join(parts[:-1]) + "-" + str(int(parts[-1])+1)
