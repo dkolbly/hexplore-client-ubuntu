@@ -1,0 +1,86 @@
+package wire.terrain;
+
+message Rect {
+  required sint32 x = 1;
+  required sint32 y = 2;
+  required int32 w = 3;
+  required int32 h = 4;
+};
+
+// Client tells server about a change in what's in view
+
+message ViewChange {
+  repeated Rect visible = 1;
+  repeated Rect invisible = 2;
+};
+
+// Server tells client about visible terrain
+
+message Terrain {
+  required Rect area = 1;
+  required bytes spanarray = 2;
+  required int32 basement = 3;
+};
+
+/* 
+  The span array encodes the entire area in row-major order
+  (i.e., X is fastest varying and then Y)
+ 
+  Encoding is as follows:
+    00 = end of column
+    <HH 01-7E> <TT> <FF> = Span of height HH with type TT and flags FF
+    7F <HH HH> <TT> <FF> = Span of height HHHH with type TT and flags FF
+*/
+
+message EditSpan {
+   required int32 x = 1;
+   required int32 y = 2;
+   required int32 z0 = 3;
+   required int32 height = 4;
+   required int32 type = 5;
+   optional int32 flags = 6;
+};
+
+message Edit {
+  repeated EditSpan span = 3;
+};
+
+/*
+ *    The Galaxy
+ *    ==========
+ *    These objects are used to describe the galaxy, specifically
+ *    all the stars in it and the orbital parameters of the home solar
+ *    system within the galaxy
+ */
+
+message Star {
+  repeated float location = 1;          // galactic coords in ly
+  optional float magnitude = 2;         // absolute magnitude
+  optional string spectral_class = 3;   // K, M, ...
+};
+
+message Orbit {
+  // the units of the radius depend on the context of the orbit;
+  // for the system's orbit within the galaxy, it is in units of LY
+  // for planets and moons orbits within the solar system, it is in AU
+  optional float radius = 1 [default=1.0];
+  optional float eccentricity = 2 [default=0.0];
+  optional float inclination = 3 [default=0.0];
+  optional float longitude_ascending = 4 [default=0.0];
+  optional float arg_periapsis = 5 [default=0.0];
+
+  // we have a global epoch, the "solar_time", so this
+  // sets the phase relative to the solar time
+  optional float mean_anomaly_at_epoch = 6 [default=0];
+
+  // the mean motion, or average angular velocity, is
+  // 2*PI/period.  The period is number of days to perform
+  // a complete orbit.
+  optional float orbital_period = 7 [default=1.0];
+};
+
+message Galaxy {
+  repeated Star stars = 1;
+  // The orbital parameters of the home star system
+  optional Orbit home = 2;
+};

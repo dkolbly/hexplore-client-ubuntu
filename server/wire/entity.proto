@@ -1,0 +1,65 @@
+import "wire/model.proto";
+
+package wire.entity;
+
+message BecomePlayer {  // Client->Server
+  required string playername = 1;
+};
+
+message EntityInfo {
+  required uint32 uid = 1;
+  optional string type = 2;
+  optional string subtype = 3;
+
+  // for the player-entity, matches the PlayerStatus.playername
+  optional string name = 4;             
+
+  //  X, Y, Z, facing, other entity-dependent armature info...
+  // (for example, for a player entity, coords[4] is the head tilt)
+  repeated double coords = 5 [packed=true];
+  optional float duration = 6;    // how long to spend moving
+  optional string animus = 7;     // animus to use for motion
+};
+
+
+message PlayerStatus {
+  required string playername = 1;
+  repeated EntityInfo entities = 2;
+  optional string username = 3;         // users form a scope for players; e.g., two users can have player characters with the same name
+};
+
+message AuditEntry {
+  optional string principal = 1;
+  optional uint64 timestamp = 2;
+  optional string message = 3;
+};
+
+message Script {
+  optional uint64 scope_id = 1;
+  required string name = 2;
+  // a request to get a script is a Script message with no lang/text
+  optional string lang = 3;
+  optional string text = 4;
+  repeated AuditEntry audit = 5;
+};
+
+message EntityTypeAttr {
+  required string key = 1;
+  optional wire.model.Image image_value = 2;
+  optional wire.model.Mesh mesh_value = 3;
+  optional Script script_value = 4;
+  optional wire.model.Curve curve_value = 5;
+  optional wire.model.Animus animus_value = 6;
+};
+
+message EntityType {
+  required string type = 1;
+  repeated EntityTypeAttr attr = 2;
+  optional string parent = 3;
+};
+
+message Tell {
+  required uint32 target = 1;
+  optional string message = 2;
+  optional uint32 flags = 3 [default=0];
+};

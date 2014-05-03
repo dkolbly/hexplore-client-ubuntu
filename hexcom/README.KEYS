@@ -1,0 +1,14 @@
+
+openssl genrsa -out root_ca.key 2048
+openssl req -new -key root_ca.key -out root_ca.csr -subj "/C=US/ST=Texas/L=Austin/O=RScheme Dev Group/CN=Hexplore Root CA...Testing"
+openssl x509 -set_serial 500 -req -days 500 -in root_ca.csr -signkey root_ca.key -out root_ca.crt
+
+# Note these use -CA/-CAkey instead of -signkey (signkey is for self-signed)
+
+openssl genrsa -out server.key 1024
+openssl req -new -key server.key -out server.csr -subj "/C=US/ST=Texas/L=Austin/O=RScheme Dev Group/CN=Hexplore Dev Server"
+openssl x509 -set_serial 501 -req -days 20 -in server.csr -CA root_ca.crt -CAkey root_ca.key -out server.crt
+
+openssl genrsa -out user.key 1024
+openssl req -new -key user.key -out user.csr -subj "/C=US/ST=Texas/L=Austin/O=RScheme Dev Group/CN=donovan@rscheme.org"
+openssl x509 -set_serial 1001 -req -days 20 -in user.csr -CA root_ca.crt -CAkey root_ca.key -out user.crt

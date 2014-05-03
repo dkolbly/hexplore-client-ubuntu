@@ -1,0 +1,79 @@
+%!PS-Adobe-2.0
+%%Creator: Donovan
+%%Title: hex
+%%Pages: 1
+%%PageOrder: Ascend
+%%BoundingBox: 0 0 612 792
+%%DocumentPaperSizes: Letter
+%%EndComments
+
+/x0 0 def
+/x1 0.5 def
+/x2 1 def
+
+/a 0.2886751345948129 def
+/edge a 2 mul def
+
+/y0 a neg def
+/y1 0 def
+/y2 edge def
+/y3 edge a add def
+
+/xstride 1 def
+/ystride edge 1.5 mul def
+
+-100 -100 translate
+% 0 0 moveto 50 50 lineto stroke
+
+80 80 scale
+0.03 setlinewidth
+
+/hex {
+  x0 y1 moveto
+  x1 y0 lineto
+  x2 y1 lineto
+  x2 y2 lineto
+  x1 y3 lineto
+  x0 y2 lineto
+  x0 y1 lineto
+  closepath
+} def
+
+/hexrow {
+  /hexx 0 def
+  gsave
+  9 {
+    hexx == hexy ==
+    hexx 6 eq hexy 7 eq and fillmode and {
+        gsave
+            0.7 0.7 1 setrgbcolor
+            hex fill
+        grestore
+    } if
+    fillmode not { hex stroke } if
+    xstride 0 translate
+    /hexx hexx 1 add def
+  } repeat
+  grestore
+} def
+
+% hex stroke
+% gsave xstride 1 mul 0 translate hex stroke grestore
+/hexgrid {
+  /hexy 0 def
+  gsave
+  9 {
+    hexrow
+    xstride 2 div ystride translate
+    /hexy hexy 1 add def
+    hexrow
+    xstride -2 div ystride translate
+    /hexy hexy 1 add def
+  } repeat
+  grestore
+} def
+
+/fillmode true def hexgrid
+/fillmode false def hexgrid
+
+showpage

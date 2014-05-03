@@ -1,0 +1,33 @@
+
+package wire.hello;
+
+// what the client sends to the server
+
+message ClientGreeting {
+  required int32 version = 1;
+  required string useragent = 2;
+  optional string username = 3;
+  optional string password = 4;
+};
+
+// what the server sends to the client
+
+message ServerGreeting {
+  required int32 version = 1;
+  required string servername = 2;
+  required int32 current_users = 3;
+  required int32 max_users = 4;
+  optional string authsalt = 5;
+  optional int32 resultcode = 6;
+  optional string message = 7;
+  optional double solartime = 8;
+  optional double solardayreal = 9; // length of solar day (solartime units) in wallclock secs
+};
+
+message User {
+  required string username = 1;
+  optional string salt = 2;
+  optional string password = 3;   // MD5(salt+";"+plaintext_password+";"+salt)
+  optional int64 lastlogin = 4;   // epoch millisecs
+};
+

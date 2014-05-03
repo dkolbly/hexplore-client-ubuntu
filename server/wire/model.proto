@@ -1,0 +1,71 @@
+package wire.model;
+
+message Image {
+  required uint32 width = 1;
+  required uint32 height = 2;
+  required bytes data = 3;      // zlib compressed 16-bit unsigned big-endian data in 
+                                // planar order: R-plane, G-plane, B-plane, then A-plane
+};
+
+message Vertices {
+  repeated float x = 1 [packed=true];
+  repeated float y = 2 [packed=true];
+  repeated float z = 3 [packed=true];
+  repeated float u = 4 [packed=true];
+  repeated float v = 5 [packed=true];
+  repeated float a = 6 [packed=true];
+  repeated float nx = 7 [packed=true];
+  repeated float ny = 8 [packed=true];
+  repeated float nz = 9 [packed=true];
+};
+
+message Face {
+  repeated uint32 vertex = 1 [packed=true];
+};
+
+enum ArgumentType {
+  SINGLE_AXIS_ROTATION = 1;
+  SINGLE_AXIS_TRANSLATION = 2;
+};
+
+message Mesh {
+  optional string name = 1;
+  optional Vertices vertices = 2;
+  repeated Face faces = 3;
+  repeated Mesh children = 4;
+
+  optional ArgumentType style = 5;
+  repeated float matrix = 6 [packed=true];
+  repeated float basis = 7 [packed=true];
+  // the reference point for this mesh, for forward kinematics
+  // (since the matrix is used for animation)
+  repeated float refpoint = 8 [packed=true];
+};
+
+/*
+ *  An animus is like an animation or motion "shader";
+ *  it defines a mapping from the configured attributes,
+ *  which can vary smoothly on the client side, to the
+ *  actual joint positions.  A given entity type may
+ *  use several different Animae, one for each kind of move
+ *  such as a turn versus forward motion.
+ */
+
+message JointDriver {
+  required uint32 joint_index = 1;
+  optional string transform_curve = 2;
+  optional float constant_value = 3;
+  optional uint32 parameter_value = 4;
+};
+
+message Animus {
+  required string name = 1;
+  repeated JointDriver driver = 2;
+};
+
+message Curve {
+  required string name = 1;
+  optional float x_origin = 2;
+  optional float x_limit = 3;
+  repeated float y_values = 4 [packed=true];
+};
